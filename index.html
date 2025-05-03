@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ФК Динамо</title>
+    <link rel="icon" type="image/png" href="https://maf.lviv.ua/wp-content/uploads/2024/06/4_1336836167.png">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { 
+            margin: 0; 
+            overflow-x: hidden; 
+            background: url('https://i.moyo.ua/img/gallery/5216/91/1401125_middle.jpg') no-repeat center center fixed; 
+            background-size: cover;
+            background-color: #1a202c;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: -2;
+        }
+        #three-canvas { position: fixed; top: 0; left: 0; z-index: -1; opacity: 0.3; }
+        .content { position: relative; z-index: 10; }
+        .section { 
+            min-height: 100vh; 
+            padding: 4rem 1rem; 
+            opacity: 0; 
+            transform: translateY(50px); 
+            transition: opacity 0.8s ease, transform 0.8s ease; 
+        }
+        .section.visible { opacity: 1; transform: translateY(0); }
+        .card { 
+            background: rgba(255, 255, 255, 0.15); 
+            backdrop-filter: blur(12px); 
+            border-radius: 1.5rem; 
+            padding: 2rem; 
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3); 
+            transition: transform 0.4s ease, box-shadow 0.4s ease; 
+        }
+        .card:hover { 
+            transform: translateY(-15px); 
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.4); 
+        }
+        .nav-link { 
+            position: relative; 
+            transition: color 0.3s ease; 
+        }
+        .nav-link::after { 
+            content: ''; 
+            position: absolute; 
+            width: 0; 
+            height: 2px; 
+            bottom: -2px; 
+            left: 0; 
+            background: #3b82f6; 
+            transition: width 0.3s ease; 
+        }
+        .nav-link:hover::after { width: 100%; }
+        .scrollbar { 
+            position: fixed; 
+            right: 10px; 
+            top: 50%; 
+            transform: translateY(-50%); 
+            z-index: 20; 
+        }
+        .scrollbar a { 
+            display: block; 
+            width: 12px; 
+            height: 12px; 
+            background: rgba(255, 255, 255, 0.5); 
+            border-radius: 50%; 
+            margin: 10px 0; 
+            transition: background 0.3s ease, transform 0.3s ease; 
+        }
+        .scrollbar a:hover, .scrollbar a.active { 
+            background: #3b82f6; 
+            transform: scale(1.5); 
+        }
+        .player-card { 
+            background: rgba(255, 255, 255, 0.1); 
+            border-radius: 1rem; 
+            padding: 1rem; 
+            display: flex; 
+            align-items: center; 
+            gap: 1rem; 
+            transition: transform 0.3s ease, box-shadow 0.3s ease; 
+        }
+        .player-card:hover { 
+            transform: scale(1.05); 
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3); 
+        }
+        .player-icon { 
+            font-size: 1.5rem; 
+            color: #3b82f6; 
+        }
+        .position-header { 
+            display: flex; 
+            align-items: center; 
+            gap: 0.5rem; 
+            margin: 1.5rem 0 1rem; 
+        }
+        @media (max-width: 640px) {
+            .section { padding: 2rem 0.5rem; }
+            .card { padding: 1.5rem; }
+            .scrollbar { right: 5px; }
+            .scrollbar a { width: 10px; height: 10px; }
+            .player-card { flex-direction: column; text-align: center; }
+            .player-icon { font-size: 1.2rem; }
+        }
+    </style>
+</head>
+<body class="text-white">
+    <canvas id="three-canvas"></canvas>
+    
+    <nav class="fixed top-0 w-full bg-black bg-opacity-60 backdrop-blur-lg z-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <img src="https://maf.lviv.ua/wp-content/uploads/2024/06/4_1336836167.png" alt="Логотип ФК Динамо" class="h-12 w-auto">
+                    <h1 class="text-2xl font-bold ml-2">ФК Динамо</h1>
+                </div>
+                <div class="flex items-center space-x-6">
+                    <a href="#home" class="nav-link hover:text-blue-400"><i class="fas fa-home mr-1"></i>Головна</a>
+                    <a href="#matches" class="nav-link hover:text-blue-400"><i class="fas fa-futbol mr-1"></i>Матчі</a>
+                    <a href="#teams" class="nav-link hover:text-blue-400"><i class="fas fa-users mr-1"></i>Команди</a>
+                    <a href="#gallery" class="nav-link hover:text-blue-400"><i class="fas fa-images mr-1"></i>Галерея</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="scrollbar">
+        <a href="#home" class="scroll-dot" data-section="home"></a>
+        <a href="#matches" class="scroll-dot" data-section="matches"></a>
+        <a href="#teams" class="scroll-dot" data-section="teams"></a>
+        <a href="#gallery" class="scroll-dot" data-section="gallery"></a>
+    </div>
+
+    <div class="content">
+        <section id="home" class="section flex items-center justify-center">
+            <div class="text-center">
+                <img src="https://maf.lviv.ua/wp-content/uploads/2024/06/4_1336836167.png" alt="Логотип ФК Динамо" class="h-24 mx-auto mb-4">
+                <h2 class="text-5xl font-bold mb-4">Ласкаво просимо!</h2>
+                <p class="text-xl max-w-2xl mx-auto">Офіційний сайт ФК Раделичі</p>
+            </div>
+        </section>
+
+        <section id="matches" class="section">
+            <div class="max-w-7xl mx-auto">
+                <h2 class="text-4xl font-bold mb-8 text-center"><i class="fas fa-futbol mr-2"></i>Найближчі матчі</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="card">
+                        <h3 class="text-2xl font-semibold">ФК Раделичі vs СКК Крупсько</h3>
+                        <p class="mt-2"><i class="fas fa-calendar-alt mr-1"></i>Дата: 4 травня 2025</p>
+                        <p><i class="fas fa-clock mr-1"></i>Час: 16:30</p>
+                        <p><i class="fas fa-map-marker-alt mr-1"></i>Місце: Стадіон "Ювілений" (м. Миколаїв)</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="teams" class="section">
+            <div class="max-w-7xl mx-auto">
+                <h2 class="text-4xl font-bold mb-8 text-center"><i class="fas fa-users mr-2"></i>Наші команди</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="card">
+                        <h3 class="text-2xl font-semibold">Доросла команда</h3>
+                        <p class="mt-2">Наша основна команда, яка змагається у Прем'єр-лізі України. Сила, досвід та амбіції!</p>
+                        <h4 class="text-xl font-semibold mt-4">Склад команди</h4>
+                        <div class="space-y-6">
+                            <!-- Голкіпери -->
+                            <div>
+                                <div class="position-header">
+                                    <i class="fas fa-hand-paper player-icon"></i>
+                                    <h5 class="text-lg font-bold">Голкіпери</h5>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div class="player-card">
+                                        <i class="fas fa-user player-icon"></i>
+                                        <div>
+                                            <p class="font-semibold">Антохів Ростислав</p>
+                                            <p class="text-sm">Вік: 22</p>
+                                        </div>
+                                    </div>
+                                    <div class="player-card">
+                                        <i class="fas fa-user player-icon"></i>
+                                        <div>
+                                            <p class="font-semibold">Вірт Семен</p>
+                                            <p class="text-sm">Вік: 20</p>
+                                        </div>
+                                    </div>
+                                    <div class="player-card">
+                                        <i class="fas fa-user player-icon"></i>
+                                        <div>
+                                            <p class="font-semibold">Чорний Ярослав</p>
+                                            <p class="text-sm">Вік: 35</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Захисники -->
+                            <div>
+                                <div class="position-header">
+                                    <i class="fas fa-shield-alt player-icon"></i>
+                                    <h5 class="text-lg font-bold">Захисники</h5>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div class="player-card">
+                                        <i class="fas fa-user player-icon"></i>
+                                        <div>
+                                            <p class="font-semibold">Багдай Мар'ян</p>
+                                            <p class="text-sm">Вік: 22</p>
+                                        </div>
+                                    </div>
+                                    <div class="player-card">
+                                        <i class="fas fa-user player-icon"></i>
+                                        <div>
+                                            <p class="font-semibold">Вірт Василь</p>
+                                            <p class="text-sm">Вік: 22</p>
+                                        </div>
+                                    </div>
+                                    <div class="player-card">
+                                        <i class="fas fa-user player-icon"></i>
+                                        <div>
+                                            <p class="font-semibold">Кісіль Ігор</p>
+                                            <p class="text-sm">Вік: 39</p>
+                                        </div>
+                                    </div>
+                                    <div class="player-card">
+                                        <i class="fas fa-user player-icon"></i>
+                                        <div>
+                                            <p class="font-semibold">Кісіль Микола</p>
+                                            <p class="text-sm">Вік: 36</p>
+                                        </div>
+                                    </div>
+                                    <div class="player-card">
+                                        <i class="fas fa-user player-icon"></i>
+                                        <div>
+                                            <p class="font-semibold">Савка Олег</p>
+                                            <p class="text-sm">Вік: 32</p>
+                                        </div>
+                                    </div>
+                                    <div class="player-card">
+                                        <i class="fas fa-user player-icon"></i>
+                                        <div>
+                                            <p class="font-semibold">Стефанишин Михайло</p>
+                                            <p class="text-sm">Вік: 20</p>
+                                        </div>
+                                    </div>
+                                    <div class="player-card">
+                                        <i class="fas fa-user player-icon"></i>
+                                        <div>
+                                            <p class="font-semibold">Лучечко Ігор</p>
+                                            <p class="text-sm">Вік: 31</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Півзахисники -->
+                            <div>
+                                <div class="position-header">
+                                    <i class="fas fa-running player-icon"></i>
+                                    <h5 class="text-lg font-bold">Півзахисники</h5>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div class="player-card">
+                                        <i class="fas fa-user player-icon"></i>
+                                        <div>
+                                            <p class="font-semibold">Андрусик Іван</p>
+                                            <p class="text-sm">Вік: 19</p>
+                                        </div>
+                                    </div>
+                                    <div class="player-card">
+                                        <i class="fas fa-user player-icon"></i>
+                                        <div>
+                                            <p class="font-semibold">Багдай Ігор</p>
+                                            <p class="text-sm">Вік: 23</p>
+                                        </div>
+                                    </div>
+                                    <div class="player-card">
+                                        <i class="fas fa-user player-icon"></i>
+                                        <div>
+                                            <p class="font-semibold">Багдай Олег</p>
+                                            <p class="text-sm">Вік: 17</p>
+                                        </div>
+                                    </div>
+                                    <div class="player-card">
+                                        <i class="fas fa-user player-icon"></i>
+                                        <div>
+                                            <p class="font-semibold">Багдай Остап</p>
+                                            <p class="text-sm">Вік: 19</p>
+                                        </div>
+                                    </div>
+                                    <div class="player-card">
+                                        <i class="fas fa-user player-icon"></i>
+                                        <div>
+                                            <p class="font-semibold">Гаврилів Ігор</p>
+                                            <p class="text-sm">Вік: 42</p>
+                                        </div>
+                                    </div>
+                                    <div class="player-card">
+                                        <i class="fas fa-user player-icon"></i>
+                                        <div>
+                                            <p class="font-semibold">Гаврилів Тарас</p>
+                                            <p class="text-sm">Вік: 33</p>
+                                        </div>
+                                    </div>
+                                    <div class="player-card">
+                                        <i class="fas fa-user player-icon"></i>
+                                        <div>
+                                            <p class="font-semibold">Капій Михайло</p>
+                                            <p class="text-sm">Вік: 17</p>
+                                        </div>
+                                    </div>
+                                    <div class="player-card">
+                                        <i class="fas fa-user player-icon"></i>
+                                        <div>
+                                            <p class="font-semibold">Сенишин Роман</p>
+                                            <p class="text-sm">Вік: 30</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Нападники -->
+                            <div>
+                                <div class="position-header">
+                                    <i class="fas fa-futbol player-icon"></i>
+                                    <h5 class="text-lg font-bold">Нападники</h5>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div class="player-card">
+                                        <i class="fas fa-user player-icon"></i>
+                                        <div>
+                                            <p class="font-semibold">Антохів Денис</p>
+                                            <p class="text-sm">Вік: 18</p>
+                                        </div>
+                                    </div>
+                                    <div class="player-card">
+                                        <i class="fas fa-user player-icon"></i>
+                                        <div>
+                                            <p class="font-semibold">Вірт Тарас</p>
+                                            <p class="text-sm">Вік: 29</p>
+                                        </div>
+                                    </div>
+                                    <div class="player-card">
+                                        <i class="fas fa-user player-icon"></i>
+                                        <div>
+                                            <p class="font-semibold">Гаврилів Віталій</p>
+                                            <p class="text-sm">Вік: 28</p>
+                                        </div>
+                                    </div>
+                                    <div class="player-card">
+                                        <i class="fas fa-user player-icon"></i>
+                                        <div>
+                                            <p class="font-semibold">Гаврилів Іван</p>
+                                            <p class="text-sm">Вік: 32</p>
+                                        </div>
+                                    </div>
+                                    <div class="player-card">
+                                        <i class="fas fa-user player-icon"></i>
+                                        <div>
+                                            <p class="font-semibold">Герман Іван</p>
+                                            <p class="text-sm">Вік: 35</p>
+                                        </div>
+                                    </div>
+                                    <div class="player-card">
+                                        <i class="fas fa-user player-icon"></i>
+                                        <div>
+                                            <p class="font-semibold">Данилів Олег</p>
+                                            <p class="text-sm">Вік: 18</p>
+                                        </div>
+                                    </div>
+                                    <div class="player-card">
+                                        <i class="fas fa-user player-icon"></i>
+                                        <div>
+                                            <p class="font-semibold">Данилів Руслан</p>
+                                            <p class="text-sm">Вік: 21</p>
+                                        </div>
+                                    </div>
+                                    <div class="player-card">
+                                        <i class="fas fa-user player-icon"></i>
+                                        <div>
+                                            <p class="font-semibold">Козурак Михайло</p>
+                                            <p class="text-sm">Вік: 18</p>
+                                        </div>
+                                    </div>
+                                    <div class="player-card">
+                                        <i class="fas fa-user player-icon"></i>
+                                        <div>
+                                            <p class="font-semibold">Шемота Юрій</p>
+                                            <p class="text-sm">Вік: 24</p>
+                                        </div>
+                                    </div>
+                                    <div class="player-card">
+                                        <i class="fas fa-user player-icon"></i>
+                                        <div>
+                                            <p class="font-semibold">Зварич Андрій</p>
+                                            <p class="text-sm">Вік: 18</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3 class="text-2xl font-semibold">Юнацька команда</h3>
+                        <p class="mt-2">Молоді таланти, які зростають, щоб стати зірками майбутнього!</p>
+                        <h4 class="text-xl font-semibold mt-4">Склад команди</h4>
+                        <div class="space-y-6">
+                            <!-- Воротарі -->
+                            <div>
+                                <div class="position-header">
+                                    <i class="fas fa-hand-paper player-icon"></i>
+                                    <h5 class="text-lg font-bold">Воротарі</h5>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div class="player-card">
+                                        <i class="fas fa-user player-icon"></i>
+                                        <div>
+                                            <p class="font-semibold">Онишко Віталій</p>
+                                            <p class="text-sm">Вік: 15</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Захисники -->
+                            <div>
+                                <div class="position-header">
+                                    <i class="fas fa-shield-alt player-icon"></i>
+                                    <h5 class="text-lg font-bold">Захисники</h5>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div class="player-card">
+                                        <i class="fas fa-user player-icon"></i>
+                                        <div>
+                                            <p class="font-semibold">Багдай Іван</p>
+                                            <p class="text-sm">Вік: 18</p>
+                                        </div>
+                                    </div>
+                                    <div class="player-card">
+                                        <i class="fas fa-user player-icon"></i>
+                                        <div>
+                                            <p class="font-semibold">Зварич Андрій</p>
+                                            <p class="text-sm">Вік: 18</p>
+                                        </div>
+                                    </div>
+                                    <div class="player-card">
+                                        <i class="fas fa-user player-icon"></i>
+                                        <div>
+                                            <p class="font-semibold">Козурак Михайло</p>
+                                            <p class="text-sm">Вік: 19</p>
+                                        </div>
+                                    </div>
+                                    <div class="player-card">
+                                        <i class="fas fa-user player-icon"></i>
+                                        <div>
+                                            <p class="font-semibold">Коляда Максим</p>
+                                            <p class="text-sm">Вік: 16</p>
+                                        </div>
+                                    </div>
+                                    <div class="player-card">
+                                        <i class="fas fa-user player-icon"></i>
+                                        <div>
+                                            <p class="font-semibold">Лялюк Максим</p>
+                                            <p class="text-sm">Вік: 14</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Півзахисники -->
+                            <div>
+                                <div class="position-header">
+                                    <i class="fas fa-running player-icon"></i>
+                                    <h5 class="text-lg font-bold">Півзахисники</h5>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div class="player-card">
+                                        <i class="fas fa-user player-icon"></i>
+                                        <div>
+                                            <p class="font-semibold">Антохів Денис</p>
+                                            <p class="text-sm">Вік: 19</p>
+                                        </div>
+                                    </div>
+                                    <div class="player-card">
+                                        <i class="fas fa-user player-icon"></i>
+                                        <div>
+                                            <p class="font-semibold">Даців Роман</p>
+                                            <p class="text-sm">Вік: 15</p>
+                                        </div>
+                                    </div>
+                                    <div class="player-card">
+                                        <i class="fas fa-user player-icon"></i>
+                                        <div>
+                                            <p class="font-semibold">Капій Михайло</p>
+                                            <p class="text-sm">Вік: 17</p>
+                                        </div>
+                                    </div>
+                                    <div class="player-card">
+                                        <i class="fas fa-user player-icon"></i>
+                                        <div>
+                                            <p class="font-semibold">Сененько Сергій</p>
+                                            <p class="text-sm">Вік: 18</p>
+                                        </div>
+                                    </div>
+                                    <div class="player-card">
+                                        <i class="fas fa-user player-icon"></i>
+                                        <div>
+                                            <p class="font-semibold">Зварич Іван</p>
+                                            <p class="text-sm">Вік: 15</p>
+                                        </div>
+                                    </div>
+                                    <div class="player-card">
+                                        <i class="fas fa-user player-icon"></i>
+                                        <div>
+                                            <p class="font-semibold">Луців Максим</p>
+                                            <p class="text-sm">Вік: 17</p>
+                                        </div>
+                                    </div>
+                                    <div class="player-card">
+                                        <i class="fas fa-user player-icon"></i>
+                                        <div>
+                                            <p class="font-semibold">Гринців Мар’ян</p>
+                                            <p class="text-sm">Вік: 17</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Нападники -->
+                            <div>
+                                <div class="position-header">
+                                    <i class="fas fa-futbol player-icon"></i>
+                                    <h5 class="text-lg font-bold">Нападники</h5>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    
+                                    <div class="player-card">
+                                        <i class="fas fa-user player-icon"></i>
+                                        <div>
+                                            <p class="font-semibold">Багдай Олег</p>
+                                            <p class="text-sm">Вік: 18</p>
+                                        </div>
+                                    </div>
+                                    <div class="player-card">
+                                        <i class="fas fa-user player-icon"></i>
+                                        <div>
+                                            <p class="font-semibold">Дорота Максим</p>
+                                            <p class="text-sm">Вік: 16</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="gallery" class="section">
+            <div class="max-w-7xl mx-auto">
+                <h2 class="text-4xl font-bold mb-8 text-center"><i class="fas fa-images mr-2"></i>Галерея (в розробці....)</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="card">
+                        <img src="https://via.placeholder.com/400x300?text=Match+1" alt="Match 1" class="w-full h-48 object-cover rounded-lg transform hover:scale-105 transition-transform duration-300">
+                        <p class="mt-2"></p>
+                    </div>
+                    <div class="card">
+                        <img src="https://via.placeholder.com/400x300?text=Match+2" alt="Match 2" class="w-full h-48 object-cover rounded-lg transform hover:scale-105 transition-transform duration-300">
+                        <p class="mt-2"></p>
+                    </div>
+                    <div class="card">
+                        <img src="https://via.placeholder.com/400x300?text=Match+3" alt="Match 3" class="w-full h-48 object-cover rounded-lg transform hover:scale-105 transition-transform duration-300">
+                        <p class="mt-2"></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Three.js Background
+        let scene, camera, renderer, spheres = [];
+        try {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('three-canvas'), alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+
+            const geometry = new THREE.SphereGeometry(0.5, 32, 32);
+            const material = new THREE.MeshBasicMaterial({ color: 0x3b82f6, wireframe: true });
+
+            for (let i = 0; i < 50; i++) {
+                const sphere = new THREE.Mesh(geometry, material);
+                sphere.position.set(
+                    Math.random() * 100 - 50,
+                    Math.random() * 100 - 50,
+                    Math.random() * 100 - 50
+                );
+                scene.add(sphere);
+                spheres.push(sphere);
+            }
+
+            camera.position.z = 50;
+
+            function animate() {
+                requestAnimationFrame(animate);
+                spheres.forEach(sphere => {
+                    sphere.rotation.x += 0.01;
+                    sphere.rotation.y += 0.01;
+                });
+                renderer.render(scene, camera);
+            }
+            animate();
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        } catch (e) {
+            console.error('Three.js failed to load:', e);
+            document.getElementById('three-canvas').style.display = 'none';
+        }
+
+        // Smooth scrolling and scroll dot functionality
+        const sections = document.querySelectorAll('.section');
+        const scrollDots = document.querySelectorAll('.scroll-dot');
+
+        function updateActiveDot() {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (window.scrollY >= sectionTop - window.innerHeight / 2) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            scrollDots.forEach(dot => {
+                dot.classList.remove('active');
+                if (dot.getAttribute('data-section') === current) {
+                    dot.classList.add('active');
+                }
+            });
+        }
+
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Intersection Observer for section animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        sections.forEach(section => observer.observe(section));
+
+        // Update scroll dots on scroll
+        window.addEventListener('scroll', updateActiveDot);
+
+        // Debug loading issues
+        window.addEventListener('error', (e) => {
+            console.error('Resource failed to load:', e.target.src || e.target.href);
+        });
+    </script>
+</body>
+</html>
