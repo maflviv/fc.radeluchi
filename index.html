@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ФК Динамо</title>
+    <title>ФК Раделичі</title>
     <link rel="icon" type="image/png" href="https://maf.lviv.ua/wp-content/uploads/2024/06/4_1336836167.png">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -106,6 +106,25 @@
             gap: 0.5rem; 
             margin: 1.5rem 0 1rem; 
         }
+        .tab-button { 
+            background: rgba(255, 255, 255, 0.1); 
+            padding: 0.75rem 1.5rem; 
+            border-radius: 0.75rem; 
+            transition: background 0.3s ease, color 0.3s ease; 
+        }
+        .tab-button:hover { 
+            background: rgba(255, 255, 255, 0.2); 
+        }
+        .tab-button.active { 
+            background: #3b82f6; 
+            color: white; 
+        }
+        .tab-content { 
+            display: none; 
+        }
+        .tab-content.active { 
+            display: block; 
+        }
         @media (max-width: 640px) {
             .section { padding: 2rem 0.5rem; }
             .card { padding: 1.5rem; }
@@ -113,6 +132,7 @@
             .scrollbar a { width: 10px; height: 10px; }
             .player-card { flex-direction: column; text-align: center; }
             .player-icon { font-size: 1.2rem; }
+            .tab-button { padding: 0.5rem 1rem; font-size: 0.875rem; }
         }
     </style>
 </head>
@@ -124,7 +144,7 @@
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center">
                     <img src="https://maf.lviv.ua/wp-content/uploads/2024/06/4_1336836167.png" alt="Логотип ФК Динамо" class="h-12 w-auto">
-                    <h1 class="text-2xl font-bold ml-2">ФК Динамо</h1>
+                    <h1 class="text-2xl font-bold ml-2"></h1>
                 </div>
                 <div class="flex items-center space-x-6">
                     <a href="#home" class="nav-link hover:text-blue-400"><i class="fas fa-home mr-1"></i>Головна</a>
@@ -148,19 +168,37 @@
             <div class="text-center">
                 <img src="https://maf.lviv.ua/wp-content/uploads/2024/06/4_1336836167.png" alt="Логотип ФК Динамо" class="h-24 mx-auto mb-4">
                 <h2 class="text-5xl font-bold mb-4">Ласкаво просимо!</h2>
-                <p class="text-xl max-w-2xl mx-auto">Офіційний сайт ФК Раделичі</p>
+                <p class="text-xl max-w-2xl mx-auto">Офіційний сайт футбольного клубу с. Раделичі</p>
             </div>
         </section>
 
         <section id="matches" class="section">
             <div class="max-w-7xl mx-auto">
-                <h2 class="text-4xl font-bold mb-8 text-center"><i class="fas fa-futbol mr-2"></i>Найближчі матчі</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div class="card">
-                        <h3 class="text-2xl font-semibold">ФК Раделичі vs СКК Крупсько</h3>
-                        <p class="mt-2"><i class="fas fa-calendar-alt mr-1"></i>Дата: 4 травня 2025</p>
-                        <p><i class="fas fa-clock mr-1"></i>Час: 16:30</p>
-                        <p><i class="fas fa-map-marker-alt mr-1"></i>Місце: Стадіон "Ювілений" (м. Миколаїв)</p>
+                <h2 class="text-4xl font-bold mb-8 text-center"><i class="fas fa-futbol mr-2"></i>Матчі</h2>
+                <div class="flex justify-center space-x-4 mb-8">
+                    <button class="tab-button active" data-tab="upcoming">Найближчі матчі</button>
+                    <button class="tab-button" data-tab="archive">Архів</button>
+                </div>
+                <div id="upcoming" class="tab-content active">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="card">
+                            <h3 class="text-2xl font-semibold">ФК "Раделичі" vs СКК "Крупсько"</h3>
+                            <p class="mt-2"><i class="fas fa-calendar-alt mr-1"></i>11 травня 2025</p>
+                            <p><i class="fas fa-clock mr-1"></i>-</p>
+                            <p><i class="fas fa-map-marker-alt mr-1"></i>стадіон Дністер-Арена</p>
+                        </div>
+                    </div>
+                </div>
+                <div id="archive" class="tab-content">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="card">
+                            <p><strong>FINAL</strong></p>
+                            <h3 class="text-2xl font-semibold">ФК Раделичі vs СКК "Крупсько"</h3>
+                            <p>Кубок "Пролісок"</p>
+                            <p class="mt-2"><i class="fas fa-calendar-alt mr-1"></i>4 квітня 2025</p>
+                            <p><i class="fas fa-futbol mr-1"></i>Результат: 1 - 3</p>
+                            <p><i class="fas fa-map-marker-alt mr-1"></i>Стадіон "Ювілейний" (м. Миколаїв)</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -172,7 +210,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="card">
                         <h3 class="text-2xl font-semibold">Доросла команда</h3>
-                        <p class="mt-2">Наша основна команда, яка змагається у Прем'єр-лізі України. Сила, досвід та амбіції!</p>
+                        <p class="mt-2">Наша основна команда. Сила, досвід та амбіції!</p>
                         <h4 class="text-xl font-semibold mt-4">Склад команди</h4>
                         <div class="space-y-6">
                             <!-- Голкіпери -->
@@ -539,7 +577,6 @@
                                     <h5 class="text-lg font-bold">Нападники</h5>
                                 </div>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    
                                     <div class="player-card">
                                         <i class="fas fa-user player-icon"></i>
                                         <div>
@@ -564,23 +601,40 @@
 
         <section id="gallery" class="section">
             <div class="max-w-7xl mx-auto">
-                <h2 class="text-4xl font-bold mb-8 text-center"><i class="fas fa-images mr-2"></i>Галерея (в розробці....)</h2>
+                <h2 class="text-4xl font-bold mb-8 text-center"><i class="fas fa-images mr-2"></i>Галерея</h2>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     <div class="card">
-                        <img src="https://via.placeholder.com/400x300?text=Match+1" alt="Match 1" class="w-full h-48 object-cover rounded-lg transform hover:scale-105 transition-transform duration-300">
+                        <img src="https://github.com/maflviv/foto/blob/main/photo_2_2025-05-06_20-33-59.jpg?raw=true" alt="Match 1" class="w-full h-48 object-cover rounded-lg transform hover:scale-105 transition-transform duration-300 cursor-pointer" onclick="openModal(this.src)">
                         <p class="mt-2"></p>
                     </div>
                     <div class="card">
-                        <img src="https://via.placeholder.com/400x300?text=Match+2" alt="Match 2" class="w-full h-48 object-cover rounded-lg transform hover:scale-105 transition-transform duration-300">
-                        <p class="mt-2"></p>
-                    </div>
-                    <div class="card">
-                        <img src="https://via.placeholder.com/400x300?text=Match+3" alt="Match 3" class="w-full h-48 object-cover rounded-lg transform hover:scale-105 transition-transform duration-300">
+                        <img src="https://github.com/maflviv/foto/blob/main/photo_1_2025-05-06_20-33-59.jpg?raw=true" alt="Match 2" class="w-full h-48 object-cover rounded-lg transform hover:scale-105 transition-transform duration-300 cursor-pointer" onclick="openModal(this.src)">
                         <p class="mt-2"></p>
                     </div>
                 </div>
             </div>
+        
+            <!-- Модальне вікно -->
+            <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden z-50">
+                <span class="absolute top-4 right-4 text-white text-3xl cursor-pointer" onclick="closeModal()">&times;</span>
+                <img id="modalImage" src="" alt="Expanded Image" class="max-w-full max-h-full object-contain">
+            </div>
         </section>
+        
+        <!-- JavaScript для керування модальним вікном -->
+        <script>
+            function openModal(src) {
+                const modal = document.getElementById('imageModal');
+                const modalImage = document.getElementById('modalImage');
+                modalImage.src = src;
+                modal.classList.remove('hidden');
+            }
+        
+            function closeModal() {
+                const modal = document.getElementById('imageModal');
+                modal.classList.add('hidden');
+            }
+        </script>
     </div>
 
     <script>
@@ -671,6 +725,20 @@
 
         // Update scroll dots on scroll
         window.addEventListener('scroll', updateActiveDot);
+
+        // Tab switching functionality
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+
+                button.classList.add('active');
+                document.getElementById(button.dataset.tab).classList.add('active');
+            });
+        });
 
         // Debug loading issues
         window.addEventListener('error', (e) => {
