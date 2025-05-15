@@ -12,9 +12,9 @@
         body { 
             margin: 0; 
             overflow-x: hidden; 
-            background: url('https://i.moyo.ua/img/gallery/5216/91/1401125_middle.jpg') no-repeat center center fixed; 
+            background: url('https://sdmntprnortheu.oaiusercontent.com/files/00000000-3954-61f4-8a1a-1d9236c6651c/raw?se=2025-05-15T15%3A52%3A51Z&sp=r&sv=2024-08-04&sr=b&scid=00000000-0000-0000-0000-000000000000&skoid=eb780365-537d-4279-a878-cae64e33aa9c&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-05-15T11%3A29%3A11Z&ske=2025-05-16T11%3A29%3A11Z&sks=b&skv=2024-08-04&sig=C%2B3At4RtPRvOV3Eessu2RYhNLVmacfLLf05qZNJuk7w%3D') no-repeat center center fixed; 
             background-size: cover;
-            background-color: #1a202c;
+            background-color: #18253f;
         }
         body::before {
             content: '';
@@ -37,7 +37,7 @@
         }
         .section.visible { opacity: 1; transform: translateY(0); }
         .card { 
-            background: rgba(255, 255, 255, 0.15); 
+            background: rgba(255, 255, 255, 0.021); 
             backdrop-filter: blur(12px); 
             border-radius: 1.5rem; 
             padding: 2rem; 
@@ -107,13 +107,13 @@
             margin: 1.5rem 0 1rem; 
         }
         .tab-button { 
-            background: rgba(255, 255, 255, 0.1); 
+            background: rgba(255, 255, 255, 0.226); 
             padding: 0.75rem 1.5rem; 
             border-radius: 0.75rem; 
             transition: background 0.3s ease, color 0.3s ease; 
         }
         .tab-button:hover { 
-            background: rgba(255, 255, 255, 0.2); 
+            background: rgba(255, 255, 255, 0.308); 
         }
         .tab-button.active { 
             background: #3b82f6; 
@@ -143,7 +143,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center">
-                    <img src="https://maf.lviv.ua/wp-content/uploads/2024/06/4_1336836167.png" alt="Логотип ФК Динамо" class="h-12 w-auto">
+                    <img src="https://maf.lviv.ua/wp-content/uploads/2024/06/4_1336836167.png" alt="Логотип ФК Раделичі" class="h-12 w-auto">
                     <h1 class="text-2xl font-bold ml-2"></h1>
                 </div>
                 <div class="flex items-center space-x-6">
@@ -166,7 +166,6 @@
     <div class="content">
         <section id="home" class="section flex items-center justify-center">
             <div class="text-center">
-                <img src="https://maf.lviv.ua/wp-content/uploads/2024/06/4_1336836167.png" alt="Логотип ФК Динамо" class="h-24 mx-auto mb-4">
                 <h2 class="text-5xl font-bold mb-4">Ласкаво просимо!</h2>
                 <p class="text-xl max-w-2xl mx-auto">Офіційний сайт футбольного клубу с. Раделичі</p>
             </div>
@@ -182,10 +181,12 @@
                 <div id="upcoming" class="tab-content active">
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <div class="card">
-                            <h3 class="text-2xl font-semibold">-</h3>
-                            <p class="mt-2"><i class="fas fa-calendar-alt mr-1"></i>-</p>
-                            <p><i class="fas fa-clock mr-1"></i>-</p>
-                            <p><i class="fas fa-map-marker-alt mr-1"></i>-</p>
+                            <h1><strong>ЧЕМПІОНАТ МИКОЛАЇВЩИНИ З ФУБОЛУ</strong></h1>
+                            <p>2 ТУР</p>
+                            <h3 class="text-2xl font-semibold">ФК Раделичі vs ФК Рудники</h3>
+                            <p class="mt-2"><i class="fas fa-calendar-alt mr-1"></i>18.05.2025</p>
+                            <p><i class="fas fa-clock mr-1"></i>14:00</p>
+                            <p><i class="fas fa-map-marker-alt mr-1"></i>Стадіон "Долина" (с. Раделичі)</p>
                         </div>
                     </div>
                 </div>
@@ -646,50 +647,6 @@
     </div>
 
     <script>
-        // Three.js Background
-        let scene, camera, renderer, spheres = [];
-        try {
-            scene = new THREE.Scene();
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('three-canvas'), alpha: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-
-            const geometry = new THREE.SphereGeometry(0.5, 32, 32);
-            const material = new THREE.MeshBasicMaterial({ color: 0x3b82f6, wireframe: true });
-
-            for (let i = 0; i < 50; i++) {
-                const sphere = new THREE.Mesh(geometry, material);
-                sphere.position.set(
-                    Math.random() * 100 - 50,
-                    Math.random() * 100 - 50,
-                    Math.random() * 100 - 50
-                );
-                scene.add(sphere);
-                spheres.push(sphere);
-            }
-
-            camera.position.z = 50;
-
-            function animate() {
-                requestAnimationFrame(animate);
-                spheres.forEach(sphere => {
-                    sphere.rotation.x += 0.01;
-                    sphere.rotation.y += 0.01;
-                });
-                renderer.render(scene, camera);
-            }
-            animate();
-
-            window.addEventListener('resize', () => {
-                camera.aspect = window.innerWidth / window.innerHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize(window.innerWidth, window.innerHeight);
-            });
-        } catch (e) {
-            console.error('Three.js failed to load:', e);
-            document.getElementById('three-canvas').style.display = 'none';
-        }
-
         // Smooth scrolling and scroll dot functionality
         const sections = document.querySelectorAll('.section');
         const scrollDots = document.querySelectorAll('.scroll-dot');
